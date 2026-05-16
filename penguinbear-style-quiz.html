@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PenguinBear · 学习风格探索</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: linear-gradient(135deg, #e8f3ee 0%, #f5efe8 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .quiz-container {
+    width: 100%;
+    max-width: 580px;
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(60, 100, 80, 0.12);
+    padding: 40px 38px;
+    position: relative;
+    min-height: 460px;
+  }
+
+  .screen { display: none; }
+  .screen.active { display: block; animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ======== WELCOME ======== */
+  .welcome { text-align: center; padding: 10px 0; }
+  .mascots { display: flex; justify-content: center; gap: 12px; align-items: flex-end; margin-bottom: 20px; }
+  .mascots svg { width: 80px; height: 80px; }
+  .welcome h1 { font-size: 28px; font-weight: 700; color: #2a5a3a; margin-bottom: 4px; letter-spacing: -0.3px; }
+  .welcome .sub { font-size: 14px; color: #999; margin-bottom: 20px; }
+  .welcome p { font-size: 14px; color: #555; line-height: 1.7; margin-bottom: 8px; }
+  .welcome .note { font-size: 12px; color: #bbb; font-style: italic; margin: 16px 0 24px; }
+
+  .btn {
+    display: inline-block; padding: 12px 40px; border: none; border-radius: 50px;
+    font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit;
+  }
+  .btn-primary { background: #4a9a6a; color: #fff; box-shadow: 0 2px 10px rgba(74,154,106,0.3); }
+  .btn-primary:hover { background: #3d8a5d; transform: translateY(-2px); }
+  .btn-outline { background: transparent; color: #4a9a6a; border: 2px solid #4a9a6a; }
+  .btn-outline:hover { background: #f0f7f2; }
+
+  /* ======== QUIZ ======== */
+  .progress-bar { width: 100%; height: 6px; background: #e8edea; border-radius: 3px; margin-bottom: 24px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #4a9a6a, #6abf8a); border-radius: 3px; transition: width 0.4s ease; width: 0%; }
+
+  .quiz-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+  .quiz-counter { font-size: 13px; color: #999; font-weight: 500; }
+  .quiz-mascot svg { width: 36px; height: 36px; }
+
+  .quiz-question { font-size: 18px; font-weight: 600; color: #2c2c2c; margin-bottom: 22px; line-height: 1.5; }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+  .quiz-option {
+    display: flex; align-items: center; gap: 12px; padding: 14px 16px;
+    border: 2px solid #e8e4e0; border-radius: 12px; cursor: pointer;
+    transition: all 0.2s; font-size: 14px; color: #444; background: #fff;
+  }
+  .quiz-option:hover { border-color: #b0d0c0; background: #f5faf7; }
+  .quiz-option.selected { border-color: #4a9a6a; background: #edf5f0; color: #2a5a3a; font-weight: 500; }
+  .quiz-option .opt-icon { font-size: 20px; flex-shrink: 0; width: 28px; text-align: center; }
+
+  .quiz-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; }
+  .btn-next {
+    padding: 10px 28px; background: #4a9a6a; color: #fff; border: none;
+    border-radius: 50px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.2s;
+  }
+  .btn-next:disabled { background: #c8d8d0; cursor: not-allowed; }
+  .btn-next:not(:disabled):hover { background: #3d8a5d; }
+  .btn-prev { padding: 10px 20px; background: transparent; color: #999; border: none; font-size: 13px; cursor: pointer; font-family: inherit; }
+  .btn-prev:hover { color: #666; }
+
+  /* ======== RESULTS ======== */
+  .results { text-align: center; }
+  .results .mascots svg { width: 60px; height: 60px; }
+  .results h2 { font-size: 24px; font-weight: 700; color: #2a5a3a; margin-bottom: 2px; }
+  .results .sub { font-size: 13px; color: #999; margin-bottom: 16px; }
+
+  .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; text-align: left; }
+  .result-item { padding: 10px 14px; border-radius: 10px; background: #f8f6f4; }
+  .result-item .label { font-size: 11px; color: #888; margin-bottom: 4px; display: flex; justify-content: space-between; }
+  .result-item .label span { font-weight: 600; }
+  .result-bar { height: 8px; border-radius: 4px; background: #e8e4e0; overflow: hidden; margin-bottom: 2px; }
+  .result-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease; width: 0%; }
+  .fill-v { background: #2a6f97; }
+  .fill-a { background: #7b4f99; }
+  .fill-k { background: #4a7c3f; }
+  .fill-r { background: #b87a2e; }
+  .result-item .score { font-size: 11px; color: #999; }
+
+  .result-section { background: #fcfaf8; border: 1px solid #e8e4e0; border-radius: 12px; padding: 14px 16px; margin-bottom: 14px; text-align: left; }
+  .result-section h4 { font-size: 14px; color: #2a5a3a; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+  .result-section p, .result-section li { font-size: 13px; color: #555; line-height: 1.6; }
+  .result-section ul { padding-left: 18px; margin-top: 4px; }
+  .result-section ul li { margin-bottom: 4px; }
+
+  .result-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 6px; }
+  .btn-print { padding: 10px 24px; background: #e8edea; color: #555; border: none; border-radius: 50px; font-size: 13px; cursor: pointer; font-family: inherit; }
+  .btn-print:hover { background: #d8e0dc; }
+
+  @media (max-width: 480px) {
+    .quiz-container { padding: 28px 20px; }
+    .mascots svg { width: 60px; height: 60px; }
+    .quiz-question { font-size: 16px; }
+    .result-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="quiz-container" id="app">
+
+  <!-- WELCOME -->
+  <div class="screen active" id="screen-welcome">
+    <div class="welcome">
+      <div class="mascots" id="welcomeMascots"></div>
+      <h1>你的学习风格是什么？</h1>
+      <p class="sub">小熊和小企鹅带你来探索</p>
+      <p>每个人学习的方式都不一样。有人喜欢用眼睛看，有人喜欢用耳朵听，有人喜欢动手做。</p>
+      <p><strong>20道题</strong>，每题选一个你最喜欢的答案。</p>
+      <p>没有对错，选最像你的就好。</p>
+      <p class="note">做完之后，小熊和小企鹅会给你一份详细的学习报告 🎯</p>
+      <button class="btn btn-primary" onclick="startQuiz()">开始探索 →</button>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="screen" id="screen-quiz">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="quiz-header">
+      <span class="quiz-counter" id="quizCounter">第 1 / 20 题</span>
+      <span class="quiz-mascot" id="quizMascot"></span>
+    </div>
+    <div class="quiz-question" id="quizQuestion"></div>
+    <div class="quiz-options" id="quizOptions"></div>
+    <div class="quiz-actions">
+      <button class="btn-prev" id="btnPrev" onclick="prevQuestion()">← 上一题</button>
+      <button class="btn-next" id="btnNext" onclick="nextQuestion()" disabled>下一题 →</button>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="screen" id="screen-results">
+    <div class="results">
+      <div class="mascots" id="resultMascots"></div>
+      <h2>你的学习报告</h2>
+      <p class="sub" id="resultName"></p>
+
+      <div class="result-grid" id="resultGrid"></div>
+      <div id="resultDetail"></div>
+
+      <div class="result-actions">
+        <button class="btn btn-outline" onclick="restartQuiz()">🔄 再测一次</button>
+        <button class="btn-print" onclick="window.print()">🖨️ 打印报告</button>
+      </div>
+      <p style="font-size:11px;color:#bbb;margin-top:12px;">做完截图发给你的老师，她会根据结果给你更多学习建议 📸</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── SVG MASCOTS ──────────────────
+const bearSvg = `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="55" r="35" fill="#C4875A"/><circle cx="26" cy="32" r="16" fill="#C4875A"/><circle cx="74" cy="32" r="16" fill="#C4875A"/><circle cx="26" cy="32" r="9" fill="#DFA77A"/><circle cx="74" cy="32" r="9" fill="#DFA77A"/><circle cx="50" cy="62" r="22" fill="#DFA77A"/><circle cx="38" cy="48" r="3" fill="#3D2B1F"/><circle cx="62" cy="48" r="3" fill="#3D2B1F"/><ellipse cx="50" cy="58" rx="5" ry="3.5" fill="#3D2B1F"/><path d="M44 65 Q50 71 56 65" stroke="#3D2B1F" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>`;
+const penguinSvg = `<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><ellipse cx="50" cy="58" rx="28" ry="35" fill="#2A2A3A"/><ellipse cx="50" cy="62" rx="18" ry="24" fill="#F5F5F5"/><circle cx="50" cy="30" r="22" fill="#2A2A3A"/><ellipse cx="50" cy="34" rx="12" ry="14" fill="#F5F5F5"/><circle cx="38" cy="26" r="3.5" fill="#fff"/><circle cx="62" cy="26" r="3.5" fill="#fff"/><circle cx="39" cy="25" r="1.8" fill="#2A2A3A"/><circle cx="63" cy="25" r="1.8" fill="#2A2A3A"/><polygon points="50,30 46,36 54,36" fill="#F59E0B"/><ellipse cx="35" cy="50" rx="5" ry="12" fill="#3A3A4A" transform="rotate(15,35,50)"/><ellipse cx="65" cy="50" rx="5" ry="12" fill="#3A3A4A" transform="rotate(-15,65,50)"/><ellipse cx="38" cy="90" rx="6" ry="3" fill="#F59E0B"/><ellipse cx="62" cy="90" rx="6" ry="3" fill="#F59E0B"/></svg>`;
+
+// ─── 20 QUESTIONS ─────────────────────────────────
+const questions = [
+  { q:'学新单词时，你最快记住的方法是？', opts:[
+      { text:'看到单词和对应的图片', type:'V', icon:'👁️' },
+      { text:'听到老师念几遍', type:'A', icon:'👂' },
+      { text:'一边做动作一边说', type:'K', icon:'✋' },
+      { text:'写下来几遍', type:'R', icon:'📝' }]},
+  { q:'周末在家你更喜欢做什么？', opts:[
+      { text:'看书 / 看动画片 / 画画', type:'V', icon:'🎨' },
+      { text:'听音乐 / 听故事 / 聊天', type:'A', icon:'🎵' },
+      { text:'运动 / 搭积木 / 做手工', type:'K', icon:'🏃' },
+      { text:'写日记 / 做手帐', type:'R', icon:'📖' }]},
+  { q:'老师讲新知识时，你最喜欢哪种方式？', opts:[
+      { text:'看一张图解或流程图', type:'V', icon:'📊' },
+      { text:'听老师举例子讲故事', type:'A', icon:'📢' },
+      { text:'上台做表演或活动', type:'K', icon:'🎭' },
+      { text:'看文字解释和例句', type:'R', icon:'✏️' }]},
+  { q:'复习的时候，你通常怎么做？', opts:[
+      { text:'翻看笔记和课本图片', type:'V', icon:'📚' },
+      { text:'大声读或者自己说一遍', type:'A', icon:'🗣️' },
+      { text:'动来动去边走边背', type:'K', icon:'🚶' },
+      { text:'默写一遍或抄一遍', type:'R', icon:'📝' }]},
+  { q:'你觉得英语课哪部分最容易？', opts:[
+      { text:'阅读和看图片猜意思', type:'V', icon:'📖' },
+      { text:'听录音回答问题', type:'A', icon:'🎧' },
+      { text:'做游戏和角色扮演', type:'K', icon:'🎯' },
+      { text:'填写练习纸和写短文', type:'R', icon:'📋' }]},
+  { q:'记一个句子时，你最先记住的是？', opts:[
+      { text:'它在书上长什么样、在哪一页', type:'V', icon:'📍' },
+      { text:'它听起来是什么感觉和语调', type:'A', icon:'🎶' },
+      { text:'说它的时候身体在做什么', type:'K', icon:'💃' },
+      { text:'它的拼写和语法结构', type:'R', icon:'🔤' }]},
+  { q:'如果让你做英语小报，你最先做的是？', opts:[
+      { text:'想用什么颜色和图片搭配', type:'V', icon:'🌈' },
+      { text:'想文字读起来什么节奏', type:'A', icon:'🎤' },
+      { text:'想里面能不能加互动机关', type:'K', icon:'🔧' },
+      { text:'想写什么内容', type:'R', icon:'✍️' }]},
+  { q:'你最喜欢哪种课堂活动？', opts:[
+      { text:'看图片 / 视频回答问题', type:'V', icon:'📺' },
+      { text:'跟着音频跟读 / 唱歌', type:'A', icon:'🎤' },
+      { text:'角色扮演 / 桌游 / 做动作', type:'K', icon:'🎲' },
+      { text:'完成练习纸 / 写小短文', type:'R', icon:'📄' }]},
+  { q:'记电话号码你会怎么做？', opts:[
+      { text:'写在便利贴上贴起来', type:'V', icon:'📋' },
+      { text:'反复念几遍记住发音', type:'A', icon:'🔁' },
+      { text:'在手机上按一遍试试', type:'K', icon:'📱' },
+      { text:'记在备忘录里', type:'R', icon:'📓' }]},
+  { q:'老师教新动作时，你最先做的是？', opts:[
+      { text:'先看老师完整做一遍', type:'V', icon:'👀' },
+      { text:'听老师讲解步骤', type:'A', icon:'👂' },
+      { text:'直接跟着做一遍', type:'K', icon:'🏋️' },
+      { text:'在心里把步骤过一遍', type:'R', icon:'🧠' }]},
+  { q:'迷路了想要什么帮助？', opts:[
+      { text:'一张地图自己看', type:'V', icon:'🗺️' },
+      { text:'有人告诉我怎么走', type:'A', icon:'🗣️' },
+      { text:'有人带我走一遍', type:'K', icon:'🚶' },
+      { text:'把路线写下来给我', type:'R', icon:'📝' }]},
+  { q:'你最想要的奖励是？', opts:[
+      { text:'一本好看的漫画书', type:'V', icon:'📕' },
+      { text:'一张喜欢的音乐专辑', type:'A', icon:'💿' },
+      { text:'一次游乐园之旅', type:'K', icon:'🎡' },
+      { text:'一套漂亮的文具', type:'R', icon:'🖊️' }]},
+  { q:'看书的时候你更喜欢？', opts:[
+      { text:'有很多插图的书', type:'V', icon:'🖼️' },
+      { text:'有人读给我听', type:'A', icon:'📢' },
+      { text:'边读边把内容演出来', type:'K', icon:'🎪' },
+      { text:'自己安静地读文字', type:'R', icon:'📖' }]},
+  { q:'背课文你一般怎么背？', opts:[
+      { text:'看着书在脑子里记', type:'V', icon:'🧐' },
+      { text:'大声读出来背', type:'A', icon:'📢' },
+      { text:'走来走去活动着背', type:'K', icon:'🚶' },
+      { text:'先抄写再背', type:'R', icon:'✍️' }]},
+  { q:'你最容易走神是什么时候？', opts:[
+      { text:'只有文字没有图片的时候', type:'V', icon:'😵' },
+      { text:'老师一直讲不停的时候', type:'A', icon:'😴' },
+      { text:'要坐很久不能动的时候', type:'K', icon:'😫' },
+      { text:'没有东西可以写的时候', type:'R', icon:'😐' }]},
+  { q:'学新游戏规则时你希望？', opts:[
+      { text:'看别人玩一遍', type:'V', icon:'👀' },
+      { text:'听别人讲解规则', type:'A', icon:'🗣️' },
+      { text:'直接上手玩', type:'K', icon:'🎮' },
+      { text:'看看规则说明书', type:'R', icon:'📜' }]},
+  { q:'你整理笔记的方式是？', opts:[
+      { text:'用不同颜色标重点', type:'V', icon:'🖍️' },
+      { text:'自己说一遍录下来', type:'A', icon:'🎙️' },
+      { text:'画一些图来帮助记', type:'K', icon:'✏️' },
+      { text:'工工整整抄下来', type:'R', icon:'📓' }]},
+  { q:'玩乐高或做手工时你习惯？', opts:[
+      { text:'看图一步一步来', type:'V', icon:'📐' },
+      { text:'听别人指挥', type:'A', icon:'📣' },
+      { text:'自己摸索随便拼', type:'K', icon:'🛠️' },
+      { text:'看完说明书再动手', type:'R', icon:'📋' }]},
+  { q:'听故事的时候你更容易？', opts:[
+      { text:'在脑子里浮现出画面', type:'V', icon:'🎬' },
+      { text:'记住声音和语气', type:'A', icon:'🎵' },
+      { text:'跟着故事情节做动作', type:'K', icon:'🏃' },
+      { text:'注意故事用了什么好词', type:'R', icon:'🔍' }]},
+  { q:'你觉得哪种方式最能帮你记住一个词？', opts:[
+      { text:'看到它在一张图片里', type:'V', icon:'🖼️' },
+      { text:'听到它在一首歌里', type:'A', icon:'🎵' },
+      { text:'用身体动作表示它', type:'K', icon:'💃' },
+      { text:'用它写一个句子', type:'R', icon:'✍️' }]}
+];
+
+// ─── TYPE DATA ──────────────────────────────────────
+const T = {
+  V: {
+    label:'视觉型', emoji:'👁️', color:'#2a6f97',
+    title:'你是一个视觉型学习者！',
+    desc:'你喜欢通过"看"来学习。图片、颜色、图表、文字，这些视觉信息是你大脑最喜欢的食物。你不需要太多解释，看到就懂了。你记东西的时候，脑子里浮现的是"它长什么样"而不是"它怎么读"。',
+    homeTips:[
+      '用彩色笔做笔记——不同颜色代表不同类别',
+      '把单词画成思维导图，而不是抄写清单',
+      '把要背的东西贴在墙上、门上、床头——眼睛看到了就记住了',
+      '用闪卡（一面图一面词）来复习'
+    ],
+    classTips:[
+      '老师讲的时候，画一些简单的图来帮助理解',
+      '做听力练习时，闭上眼睛在脑子里"画"出场景',
+      '阅读时先看图片或标题，猜猜内容再读'
+    ],
+    animalNote:'🧸 小熊说：你的眼睛是你最强的学习工具！记不住的时候，试着把它画出来。'
+  },
+  A: {
+    label:'听觉型', emoji:'👂', color:'#7b4f99',
+    title:'你是一个听觉型学习者！',
+    desc:'你喜欢通过"听"来学习。声音、节奏、对话、音乐，你的耳朵比眼睛更灵敏。你可能不一定注意到自己是怎么记住的——但你的大脑已经悄悄记下了那些声音。',
+    homeTips:[
+      '把要记的内容录下来，走路、睡前的时候反复听',
+      '用唱歌或者打节拍的方式背单词和句子',
+      '找一个"学习搭档"，互相提问回答',
+      '把英语动画片或歌曲当作背景音反复播放'
+    ],
+    classTips:[
+      '上课时跟着老师小声重复关键词',
+      '读课文时大声读出来，不要默读',
+      '做阅读题时先听一遍音频，再读文字'
+    ],
+    animalNote:'🐧 小企鹅说：你的耳朵是你的超能力！记不住的时候，试着把它唱出来。'
+  },
+  K: {
+    label:'动觉型', emoji:'✋', color:'#4a7c3f',
+    title:'你是一个动觉型学习者！',
+    desc:'你喜欢通过"做"来学习。坐着不动是你最大的挑战——但只要动起来，你学得比谁都快。你的身体是你的记忆助手，做过一遍的事，你就不太会忘。',
+    homeTips:[
+      '背单词时边走边背，不要坐着一动不动',
+      '用手比划字母的形状来记拼写',
+      '用角色扮演的方法练习对话——演出来比读出来记得牢',
+      '学新词时做一个动作来配合它'
+    ],
+    classTips:[
+      '老师讲的时候拿一支笔在手上转或画——这反而能帮你集中注意力',
+      '读课文时用手指或笔尖逐词指着读',
+      '让学习变成游戏或比赛，你会更来劲'
+    ],
+    animalNote:'🧸 小熊说：你的身体是你的记忆助手！记不住的时候，试着动一动。'
+  },
+  R: {
+    label:'读写型', emoji:'📝', color:'#b87a2e',
+    title:'你是一个读写型学习者！',
+    desc:'你喜欢通过"读和写"来学习。文字是你最舒服的世界。你喜欢自己看书、做笔记、列清单，安安静静地消化信息。你的笔记总是最工整的，因为你写下来的过程就是记住的过程。',
+    homeTips:[
+      '准备一个漂亮的笔记本，专门用来记英语',
+      '把学到的句子分类写进"句子银行"',
+      '读完一篇文章后，写两三句自己的感受',
+      '把要背的东西写成清单，边写边记'
+    ],
+    classTips:[
+      '上课时记笔记——不一定要记全，记关键词就行',
+      '做听力练习前先看文字稿，再听',
+      '写作前先列一个提纲，再展开写'
+    ],
+    animalNote:'🐧 小企鹅说：笔和纸是你最佳拍档！记不住的时候，试着把它写下来。'
+  }
+};
+
+// ─── STATE ─────────────────────────────────────────
+let current = 0;
+let answers = new Array(questions.length).fill(null);
+const totalQ = questions.length;
+const types = ['V','A','K','R'];
+
+document.getElementById('welcomeMascots').innerHTML = bearSvg + penguinSvg;
+
+function startQuiz() { showScreen('screen-quiz'); renderQuestion(); }
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function renderQuestion() {
+  const q = questions[current];
+  document.getElementById('quizQuestion').textContent = q.q;
+  document.getElementById('quizCounter').textContent = `第 ${current+1} / ${totalQ} 题`;
+  document.getElementById('quizMascot').innerHTML = current%2===0 ? bearSvg : penguinSvg;
+  document.getElementById('progressFill').style.width = (current/totalQ*100)+'%';
+
+  const container = document.getElementById('quizOptions');
+  container.innerHTML = '';
+  q.opts.forEach((opt,i) => {
+    const div = document.createElement('div');
+    div.className = 'quiz-option' + (answers[current]===i?' selected':'');
+    div.innerHTML = `<span class="opt-icon">${opt.icon}</span><span>${opt.text}</span>`;
+    div.onclick = () => selectOption(i);
+    container.appendChild(div);
+  });
+
+  document.getElementById('btnPrev').style.visibility = current===0?'hidden':'visible';
+  const nextBtn = document.getElementById('btnNext');
+  nextBtn.textContent = current===totalQ-1?'🎉 查看结果':'下一题 →';
+  nextBtn.disabled = answers[current]===null;
+}
+
+function selectOption(idx) {
+  answers[current]=idx;
+  document.querySelectorAll('.quiz-option').forEach((el,i)=>el.classList.toggle('selected',i===idx));
+  document.getElementById('btnNext').disabled=false;
+}
+
+function nextQuestion() {
+  if(answers[current]===null) return;
+  if(current===totalQ-1){ showResults(); return; }
+  current++; renderQuestion();
+}
+
+function prevQuestion() { if(current>0){ current--; renderQuestion(); } }
+
+function showResults() {
+  showScreen('screen-results');
+  document.getElementById('resultMascots').innerHTML = bearSvg + penguinSvg;
+
+  const scores = {V:0,A:0,K:0,R:0};
+  answers.forEach((optIdx,qIdx)=>{
+    if(optIdx!==null) scores[questions[qIdx].opts[optIdx].type]++;
+  });
+
+  // Sort types by score descending
+  const sorted = types.slice().sort((a,b)=>scores[b]-scores[a]);
+  const top = sorted[0], second = sorted[1];
+  const maxScore = scores[top];
+
+  // Check if tie
+  const isTie = scores[second] === maxScore;
+  const isFlexible = maxScore < 5;
+
+  // Bars
+  const grid = document.getElementById('resultGrid');
+  grid.innerHTML = '';
+  for(const t of types){
+    const pct = Math.round(scores[t]/totalQ*100);
+    grid.innerHTML += `
+      <div class="result-item">
+        <div class="label"><span>${T[t].emoji} ${T[t].label}</span><span>${scores[t]}题</span></div>
+        <div class="result-bar"><div class="result-fill fill-${t.toLowerCase()}" style="width:${pct}%;"></div></div>
+        <div class="score">${pct}%</div>
+      </div>`;
+  }
+
+  // Detail
+  const detail = document.getElementById('resultDetail');
+  let html = '';
+
+  // Main verdict
+  if(isFlexible || isTie){
+    html += `<div class="result-section"><h4>🧸🐧 你是一个"多面手型"学习者！</h4>
+      <p>你没有特别固定的学习方式——这意味着你非常灵活！不同的时候用不同的方法，你都能学得很好。这对你来说是最好的策略。</p></div>`;
+  } else {
+    const info = T[top];
+    html += `<div class="result-section"><h4>${info.emoji} ${info.title}</h4><p>${info.desc}</p></div>`;
+  }
+
+  // Secondary type (if not flexible and not tied)
+  if(!isFlexible && !isTie && scores[second] >= 3){
+    html += `<div class="result-section"><h4>🔀 你的"第二风格"：${T[second].emoji} ${T[second].label}</h4>
+      <p>你也有不错的${T[second].label}倾向。两种风格结合效果更好——比如：<strong>${T[top].label}为主 + ${T[second].label}为辅</strong>，会是你最高效的学习模式。</p></div>`;
+  }
+
+  // Top tips
+  if(!isFlexible && !isTie){
+    const info = T[top];
+    html += `<div class="result-section"><h4>🏠 在家可以这样学</h4><ul>${info.homeTips.map(t=>`<li>${t}</li>`).join('')}</ul></div>`;
+    html += `<div class="result-section"><h4>🏫 上课时可以这样做</h4><ul>${info.classTips.map(t=>`<li>${t}</li>`).join('')}</ul></div>`;
+    html += `<div class="result-section"><h4>${info.animalNote.split('：')[0]}</h4><p>${info.animalNote.split('：')[1]||info.animalNote}</p></div>`;
+  }
+
+  // For flexible learners, give combined tips
+  if(isFlexible || isTie){
+    html += `<div class="result-section"><h4>🏠 在家可以这样学</h4>
+      <p>因为你很灵活，可以试试在不同场景用不同方法：</p>
+      <ul>
+        <li>记单词的时候，先看图片（视觉），再读出来（听觉），再写一遍（读写）</li>
+        <li>复习的时候，先默写（读写），再大声读（听觉），再走动着背（动觉）</li>
+        <li>用不同的方式学同一个内容，你记得最牢</li>
+      </ul></div>`;
+    html += `<div class="result-section"><h4>🧸🐧 小熊和小企鹅对你说</h4>
+      <p>你的学习方式很多样，这是你的优势！你不需要把自己限定在一种方法里。试试在不同的场景用不同的工具，你会发现自己学什么都很快。</p></div>`;
+  }
+
+  detail.innerHTML = html;
+}
+
+function restartQuiz() { current=0; answers=new Array(questions.length).fill(null); startQuiz(); }
+</script>
+</body>
+</html>
