@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PenguinBear English · 学习者画像系统</title>
+<style>
+  @page { margin: 8mm 10mm; size: A4; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #1a1a1a;
+    background: #f5f3f0;
+    padding: 20px;
+  }
+  .page {
+    max-width: 210mm;
+    margin: 0 auto 20px auto;
+    background: #fff;
+    padding: 18mm 20mm;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+    page-break-after: always;
+  }
+  @media print {
+    body { background: #fff; padding: 0; }
+    .page {
+      margin: 0 auto;
+      box-shadow: none;
+      padding: 10mm 14mm;
+      orphans: 3;
+      widows: 3;
+    }
+    .page ~ .page { page-break-before: always; }
+    .no-print { display: none; }
+  }
+
+  /* Typography */
+  h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.3px; color: #2c2c2c; margin-bottom: 2px; }
+  h2 { font-size: 18px; font-weight: 600; color: #2c2c2c; margin-top: 28px; margin-bottom: 10px; padding-bottom: 4px; border-bottom: 2px solid #e8e4e0; }
+  h3 { font-size: 14px; font-weight: 600; color: #3a3a3a; margin-top: 20px; margin-bottom: 8px; }
+  h4 { font-size: 12px; font-weight: 600; color: #555; margin-top: 14px; margin-bottom: 4px; }
+  p { margin-bottom: 8px; color: #444; }
+  .subtitle { font-size: 13px; color: #888; margin-bottom: 20px; }
+
+  /* Brand */
+  .brand { display: flex; align-items: baseline; gap: 8px; margin-bottom: 24px; }
+  .brand-name { font-size: 16px; font-weight: 700; color: #2c2c2c; letter-spacing: 0.5px; }
+  .brand-tagline { font-size: 11px; color: #aaa; font-weight: 400; }
+  .brand-line { flex: 1; height: 1px; background: #e0dcd8; }
+
+  /* Sections */
+  .section-desc { font-size: 11px; color: #666; margin-bottom: 8px; font-style: italic; }
+
+  /* Checklist tables */
+  .checklist { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+  .checklist th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: #555;
+    padding: 6px 8px;
+    border-bottom: 1px solid #ddd;
+    background: #faf8f6;
+  }
+  .checklist td {
+    padding: 5px 8px;
+    border-bottom: 1px solid #eee;
+    font-size: 11.5px;
+    vertical-align: top;
+  }
+  .checklist td:first-child { width: 36%; }
+  .checklist td:nth-child(2) { width: 12%; text-align: center; }
+  .checklist td:nth-child(3) { width: 12%; text-align: center; }
+  .checklist td:last-child { width: 40%; font-size: 10.5px; color: #888; }
+  .check-label { font-size: 10px; color: #999; display: block; margin-top: 1px; }
+  @media print { .checklist tr, .strategy-table tr, .profile-box { page-break-inside: avoid; } }
+  .check-box {
+    display: inline-block;
+    width: 22px; height: 22px;
+    border: 1.5px solid #bbb;
+    border-radius: 3px;
+    background: #fff;
+    cursor: pointer;
+    vertical-align: middle;
+  }
+  .check-box-inline { width: 16px; height: 16px; border: 1.5px solid #bbb; border-radius: 2px; display: inline-block; vertical-align: middle; margin-right: 2px; }
+
+  /* Type cards */
+  .type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+  .type-card {
+    border: 1px solid #e0dcd8;
+    border-radius: 8px;
+    padding: 14px 16px;
+    background: #fcfaf8;
+  }
+  .type-card h4 { margin-top: 0; font-size: 13px; margin-bottom: 6px; }
+  .type-card .icon { font-size: 20px; margin-right: 4px; }
+  .type-card p { font-size: 11px; color: #555; margin-bottom: 6px; }
+  .type-card ul { margin: 0; padding-left: 16px; font-size: 10.5px; color: #555; }
+  .type-card ul li { margin-bottom: 3px; }
+  .tag { display: inline-block; font-size: 9px; padding: 1px 8px; border-radius: 10px; margin-bottom: 6px; }
+  .tag-v { background: #e3f0f7; color: #2a6f97; }
+  .tag-a { background: #f0e6f5; color: #7b4f99; }
+  .tag-k { background: #e8f5e0; color: #4a7c3f; }
+  .tag-r { background: #fdf2e0; color: #b87a2e; }
+
+  /* Strategy tables */
+  .strategy-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 11px; }
+  .strategy-table th {
+    text-align: left;
+    padding: 5px 6px;
+    font-weight: 600;
+    border-bottom: 2px solid #d0ccc8;
+    background: #faf8f6;
+  }
+  .strategy-table td {
+    padding: 4px 6px;
+    border-bottom: 1px solid #eee;
+    vertical-align: top;
+  }
+  .strategy-table td:first-child { width: 28%; font-weight: 500; }
+
+  /* Profile template */
+  .profile-box {
+    border: 1.5px solid #d0ccc8;
+    border-radius: 6px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+  }
+  .profile-box .row { display: flex; margin-bottom: 6px; }
+  .profile-box .label { width: 90px; font-weight: 600; font-size: 11px; color: #555; flex-shrink: 0; }
+  .profile-box .value { font-size: 11.5px; color: #333; flex: 1; }
+  .profile-box .divider { border: none; border-top: 1px dashed #ddd; margin: 8px 0; }
+  .profile-box .strategies { font-size: 11px; color: #444; }
+  .profile-box .strategies li { margin-bottom: 4px; }
+
+  /* Quiz */
+  .quiz-item { margin-bottom: 10px; padding: 8px 10px; border: 1px solid #eee; border-radius: 6px; background: #fcfaf8; }
+  .quiz-item .q { font-size: 11.5px; font-weight: 500; margin-bottom: 4px; }
+  .quiz-item .opts { font-size: 11px; }
+  .quiz-item .opts label { display: inline-block; margin-right: 14px; cursor: pointer; }
+  .quiz-item .opts input { margin-right: 3px; vertical-align: middle; }
+
+  /* Color key */
+  .color-key { display: flex; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
+  .color-key-item { display: flex; align-items: center; gap: 4px; font-size: 10.5px; color: #555; }
+  .color-dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot-v { background: #2a6f97; }
+  .dot-a { background: #7b4f99; }
+  .dot-k { background: #4a7c3f; }
+  .dot-r { background: #b87a2e; }
+
+  /* Scoring box */
+  .score-box { display: flex; gap: 16px; margin: 12px 0; }
+  .score-item { flex: 1; text-align: center; padding: 10px; border: 1px solid #e0dcd8; border-radius: 6px; background: #faf8f6; }
+  .score-item .type { font-size: 10px; color: #888; text-transform: uppercase; }
+  .score-item .num { font-size: 20px; font-weight: 700; color: #2c2c2c; margin: 2px 0; }
+  .score-item .bar { height: 4px; border-radius: 2px; background: #e0dcd8; margin-top: 4px; overflow: hidden; }
+  .score-item .bar-fill { height: 100%; border-radius: 2px; }
+  .bar-v { background: #2a6f97; }
+  .bar-a { background: #7b4f99; }
+  .bar-k { background: #4a7c3f; }
+  .bar-r { background: #b87a2e; }
+
+  /* Notes */
+  .note { font-size: 10.5px; color: #999; background: #faf8f6; padding: 6px 10px; border-radius: 4px; margin-bottom: 12px; }
+  .note strong { color: #666; }
+
+  /* Footer */
+  .footer { text-align: center; font-size: 9px; color: #ccc; margin-top: 30px; border-top: 1px solid #eee; padding-top: 12px; }
+
+  /* Misc */
+  .page-break { page-break-before: always; }
+  .tip { font-size: 10px; color: #888; background: #f8f6f4; padding: 4px 8px; border-left: 3px solid #ddd; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+
+<!-- ============================================ -->
+<!-- PAGE 1: Cover + Overview -->
+<!-- ============================================ -->
+<div class="page">
+  <div class="brand">
+    <span class="brand-name">PenguinBear English</span>
+    <span class="brand-line"></span>
+    <span class="brand-tagline">Learner Profile System</span>
+  </div>
+
+  <h1>学习者画像系统</h1>
+  <p class="subtitle">Learning Style Assessment &amp; Strategy Guide</p>
+  <p style="margin-bottom:14px;">一套轻量、可操作的流程，帮助你精准识别学生的学习偏好，并提供针对性的英语学习策略。适用于小学中高年级至初中学生。</p>
+
+  <div style="background:#f8f6f4; border-radius:6px; padding:14px 16px; margin-bottom:18px;">
+    <h4 style="margin:0 0 6px 0;">系统组成</h4>
+    <table style="font-size:11.5px; color:#444; width:100%;">
+      <tr><td style="width:24px; vertical-align:top; font-weight:600;">A</td><td><strong>教师观察清单</strong> — 课上随手勾选，不打断教学</td></tr>
+      <tr><td style="vertical-align:top; font-weight:600;">B</td><td><strong>学生自测问卷</strong> — 3分钟，孩子自己选</td></tr>
+      <tr><td style="vertical-align:top; font-weight:600;">C</td><td><strong>家长问卷</strong> — 一页纸，回家了解的情况</td></tr>
+      <tr><td style="vertical-align:top; font-weight:600;">D</td><td><strong>画像模板</strong> — 综合输出，交给家长</td></tr>
+    </table>
+  </div>
+
+  <h3>四大学习类型概览</h3>
+  <div class="type-grid">
+    <div class="type-card">
+      <h4><span class="icon">👁️</span> 视觉型 Visual</h4>
+      <span class="tag tag-v">V</span>
+      <p>偏好图片、颜色、图表、文字。通过"看"学得最好。</p>
+      <ul>
+        <li>关键词：看到→记住</li>
+        <li>优势：拼写、阅读、整体理解</li>
+        <li>挑战：纯听力输入、口语输出</li>
+      </ul>
+    </div>
+    <div class="type-card">
+      <h4><span class="icon">👂</span> 听觉型 Auditory</h4>
+      <span class="tag tag-a">A</span>
+      <p>偏好听、说、讨论、节奏韵律。通过"听"学得最好。</p>
+      <ul>
+        <li>关键词：听到→记住</li>
+        <li>优势：听力、发音、语感</li>
+        <li>挑战：安静阅读、独立写作</li>
+      </ul>
+    </div>
+    <div class="type-card">
+      <h4><span class="icon">✋</span> 动觉型 Kinesthetic</h4>
+      <span class="tag tag-k">K</span>
+      <p>偏好动作、触摸、角色扮演、游戏。通过"做"学得最好。</p>
+      <ul>
+        <li>关键词：做到→记住</li>
+        <li>优势：口语互动、课堂参与</li>
+        <li>挑战：静坐书写、长时专注</li>
+      </ul>
+    </div>
+    <div class="type-card">
+      <h4><span class="icon">📝</span> 读写型 Reading/Writing</h4>
+      <span class="tag tag-r">R</span>
+      <p>偏好文字阅读、做笔记、列表、写作。通过"读写"学得最好。</p>
+      <ul>
+        <li>关键词：写下→记住</li>
+        <li>优势：语法、写作、独立学习</li>
+        <li>挑战：口语互动、小组活动</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="tip">
+    <strong>重要提示：</strong> 大多数孩子是混合型，只是某些偏好更显著。"画像"不是贴标签，而是帮你找到她最舒服的学习通道。建议每学期更新一次。
+  </div>
+
+  <div class="footer">PenguinBear English · Learner Profile System · v1.0</div>
+</div>
+
+<!-- ============================================ -->
+<!-- PAGE 2: A - 教师观察清单 -->
+<!-- ============================================ -->
+<div class="page">
+  <div class="brand">
+    <span class="brand-name">PenguinBear English</span>
+    <span class="brand-line"></span>
+    <span class="brand-tagline">Part A · Teacher Observation</span>
+  </div>
+
+  <h2>A — 教师观察清单</h2>
+  <p class="section-desc">上课时自然观察，课后勾选。无需刻意打断教学，只需回想这节课的表现。每个行为选定最符合的一项。</p>
+
+  <table class="checklist">
+    <tr>
+      <th>观察项</th>
+      <th>经常<br><span class="check-label">(2分)</span></th>
+      <th>偶尔<br><span class="check-label">(1分)</span></th>
+      <th>少见<br><span class="check-label">(0分)</span></th>
+    </tr>
+    <tr>
+      <td><strong>V1</strong> 看图片/视频时明显更专注，眼睛发光</td>
+      <td><span class="check-box"></span></td>
+      <td><span class="check-box"></span></td>
+      <td><span class="check-box"></span></td>
+    </tr>
+    <tr>
+      <td><strong>V2</strong> 喜欢在书上涂画、标注、写写划划</td>
+      <td><span class="check-box"></span></td>
+      <td><span class="check-box"></span></td>
+      <td><span class="check-box"></span></td>
+    </tr>
+    <tr>
+      <td><strong>V3</strong> 拼写能力强，能靠"看着对"判断正误</td>
+      <td><span class="check-box"></span></td>
+      <td><span class="check-box"></span></td>
+      <td><span class="check-box"></span></td>
+    </tr>
+    <tr>
+      <td><strong>A1</strong> 喜欢跟着朗读，节奏感好，模仿发音准确</td>
+      <td><span class="check-box"></span></td>
+      <td><span class="check-box"></span></td>
+      <td><span class="check-box"></span></td>
+    </tr>
+    <tr>
+      <td><strong>A2</strong> 喜欢提问题、接话、和同学讨论</td>
+      <td><span class="check-box"></span></td>
+      <td><span class="check-box"></span></td>
+      <td><span class="check-box"></span></td>
+    </tr>
+    <tr>
+      <td><strong>A3</strong> 老师讲语法规则时听得很认真，但做练习容易错</td>
+      <td><span class="check-box"></span></td>
+      <td><span class="check-box"></span></td>
+      <td><span class="check-box"></span></td>
+    </tr>
+    <tr>
+      <td><strong>K1</strong> 坐不住，喜欢动来动去，不做动作就难以思考</td>
+      <td><span class="check-box"></span></td>
+      <td><span class="check-box"></span></td>
+      <td><span class="check-box"></span></td>
+    </tr>
+    <tr>
+      <td><strong>K2</strong> 游戏/角色扮演环节最投入，记得最牢</td>
+      <td><span class="check-box"></span></td>
+      <td><span class="check-box"></span></td>
+      <td><span class="check-box"></span></td>
+    </tr>
+    <tr>
+      <td><strong>K3</strong> 需要实物操作（指读、拼卡片、摆单词）才能理解</td>
+      <td><span class="check-box"></span></td>
+      <td><span class="check-box"></span></td>
+      <td><span class="check-box"></span></td>
+    </tr>
+    <tr>
+      <td><strong>R1</strong> 喜欢自己默读，能安静看书写字很久</td>
+      <td><span class="check-box"></span></td>
+      <td><span class="check-box"></span></td>
+      <td><span class="check-box"></span></td>
+    </tr>
+    <tr>
+      <td><strong>R2</strong> 会主动做笔记、列清单、抄写</td>
+      <td><span class="check-box"></span></td>
+      <td><span class="check-box"></span></td>
+      <td><span class="check-box"></span></td>
+    </tr>
+    <tr>
+      <td><strong>R3</strong> 写作时条理清晰，但口语表达不如书写流畅</td>
+      <td><span class="check-box"></span></td>
+      <td><span class="check-box"></span></td>
+      <td><span class="check-box"></span></td>
+    </tr>
+  </table>
+
+  <h4>计分方法</h4>
+  <div class="score-box" style="max-width:400px;">
+    <div class="score-item"><span class="type">V 视觉</span><span class="num">/6</span></div>
+    <div class="score-item"><span class="type">A 听觉</span><span class="num">/6</span></div>
+    <div class="score-item"><span class="type">K 动觉</span><span class="num">/6</span></div>
+    <div class="score-item"><span class="type">R 读写</span><span class="num">/6</span></div>
+  </div>
+  <p style="font-size:11px; color:#888;">满分6分/类（3项 × 2分）。最高分类为观察到的显著偏好。</p>
+
+  <div class="footer">PenguinBear English · Learner Profile System · v1.0</div>
+</div>
+
+<!-- ============================================ -->
+<!-- PAGE 3: B - 学生自测 -->
+<!-- ============================================ -->
+<div class="page">
+  <div class="brand">
+    <span class="brand-name">PenguinBear English</span>
+    <span class="brand-line"></span>
+    <span class="brand-tagline">Part B · Student Quiz</span>
+  </div>
+
+  <h2>B — 学生自测问卷</h2>
+  <p class="section-desc">课前或课间花3分钟，让孩子自己选。不用解释太多，选最符合自己的就行。</p>
+
+  <div class="quiz-item">
+    <div class="q">1. 学新单词时，你最快记住的方法是？</div>
+    <div class="opts">
+      <label><input type="radio" name="q1"> A. 看到单词和对应的图片</label>
+      <label><input type="radio" name="q1"> B. 听到老师念几遍</label>
+      <label><input type="radio" name="q1"> C. 一边做动作一边说</label>
+      <label><input type="radio" name="q1"> D. 写下来几遍</label>
+    </div>
+  </div>
+  <div class="quiz-item">
+    <div class="q">2. 周末在家你更喜欢做什么？</div>
+    <div class="opts">
+      <label><input type="radio" name="q2"> A. 看书/看动画片/画画</label>
+      <label><input type="radio" name="q2"> B. 听音乐/听故事/聊天</label>
+      <label><input type="radio" name="q2"> C. 运动/搭积木/做手工</label>
+      <label><input type="radio" name="q2"> D. 写日记/做手工说明书</label>
+    </div>
+  </div>
+  <div class="quiz-item">
+    <div class="q">3. 老师讲一个新语法时，你最喜欢哪种方式？</div>
+    <div class="opts">
+      <label><input type="radio" name="q3"> A. 看一张图解（时间轴/流程图）</label>
+      <label><input type="radio" name="q3"> B. 听老师讲故事举例</label>
+      <label><input type="radio" name="q3"> C. 上台做表演或活动</label>
+      <label><input type="radio" name="q3"> D. 看文字例句并抄下来</label>
+    </div>
+  </div>
+  <div class="quiz-item">
+    <div class="q">4. 复习的时候，你通常怎么做？</div>
+    <div class="opts">
+      <label><input type="radio" name="q4"> A. 翻看笔记和课本图片</label>
+      <label><input type="radio" name="q4"> B. 大声读或者自己对自己说</label>
+      <label><input type="radio" name="q4"> C. 动来动去边走边背</label>
+      <label><input type="radio" name="q4"> D. 默写一遍或抄写一遍</label>
+    </div>
+  </div>
+  <div class="quiz-item">
+    <div class="q">5. 你觉得英语课哪部分最容易？</div>
+    <div class="opts">
+      <label><input type="radio" name="q5"> A. 阅读和看图片猜意思</label>
+      <label><input type="radio" name="q5"> B. 听录音回答问题</label>
+      <label><input type="radio" name="q5"> C. 做游戏和角色扮演</label>
+      <label><input type="radio" name="q5"> D. 填写练习纸</label>
+    </div>
+  </div>
+  <div class="quiz-item">
+    <div class="q">6. 记一个句子时，你最先记住的是？</div>
+    <div class="opts">
+      <label><input type="radio" name="q6"> A. 它在书上长什么样（位置）</label>
+      <label><input type="radio" name="q6"> B. 它听起来是什么感觉</label>
+      <label><input type="radio" name="q6"> C. 说它的时候身体在做什么</label>
+      <label><input type="radio" name="q6"> D. 它的拼写和结构</label>
+    </div>
+  </div>
+  <div class="quiz-item">
+    <div class="q">7. 如果让你做英语小报，你最先做的是？</div>
+    <div class="opts">
+      <label><input type="radio" name="q7"> A. 想用什么颜色和图片</label>
+      <label><input type="radio" name="q7"> B. 想里面的字读起来什么节奏</label>
+      <label><input type="radio" name="q7"> C. 想里面能不能加互动小机关</label>
+      <label><input type="radio" name="q7"> D. 想写什么内容</label>
+    </div>
+  </div>
+  <div class="quiz-item">
+    <div class="q">8. 你最喜欢哪种课堂活动？</div>
+    <div class="opts">
+      <label><input type="radio" name="q8"> A. 看图片/视频回答问题</label>
+      <label><input type="radio" name="q8"> B. 跟着音频跟读/唱歌</label>
+      <label><input type="radio" name="q8"> C. TPR/角色扮演/桌游</label>
+      <label><input type="radio" name="q8"> D. 完成worksheet/写小短文</label>
+    </div>
+  </div>
+
+  <h4>计分方法</h4>
+  <div class="score-box">
+    <div class="score-item"><span class="type">V 视觉</span><span class="num">/8</span><div class="bar"><div class="bar-fill bar-v" style="width:0%;"></div></div></div>
+    <div class="score-item"><span class="type">A 听觉</span><span class="num">/8</span><div class="bar"><div class="bar-fill bar-a" style="width:0%;"></div></div></div>
+    <div class="score-item"><span class="type">K 动觉</span><span class="num">/8</span><div class="bar"><div class="bar-fill bar-k" style="width:0%;"></div></div></div>
+    <div class="score-item"><span class="type">R 读写</span><span class="num">/8</span><div class="bar"><div class="bar-fill bar-r" style="width:0%;"></div></div></div>
+  </div>
+  <p style="font-size:10.5px; color:#888;">A选项=V视觉，B选项=A听觉，C选项=K动觉，D选项=R读写。合计每类选择次数即为得分。</p>
+
+  <div class="footer">PenguinBear English · Learner Profile System · v1.0</div>
+</div>
+
+<!-- ============================================ -->
+<!-- PAGE 4: C - 家长问卷 + 计分总表 -->
+<!-- ============================================ -->
+<div class="page">
+  <div class="brand">
+    <span class="brand-name">PenguinBear English</span>
+    <span class="brand-line"></span>
+    <span class="brand-tagline">Part C · Parent Input</span>
+  </div>
+
+  <h2>C — 家长配合问卷</h2>
+  <p class="section-desc">发给家长填写。观察孩子在家学习的状态，不需要专业知识，选最符合的就好。</p>
+
+  <table class="checklist">
+    <tr>
+      <th>在家学习时的表现</th>
+      <th>符合<br><span class="check-label">(2分)</span></th>
+      <th>有时<br><span class="check-label">(1分)</span></th>
+      <th>不符<br><span class="check-label">(0分)</span></th>
+    </tr>
+    <tr><td><strong>Vp1</strong> 喜欢看英文动画片/绘本，边看边模仿</td><td><span class="check-box"></span></td><td><span class="check-box"></span></td><td><span class="check-box"></span></td></tr>
+    <tr><td><strong>Vp2</strong> 喜欢把单词按颜色/主题分类整理</td><td><span class="check-box"></span></td><td><span class="check-box"></span></td><td><span class="check-box"></span></td></tr>
+    <tr><td><strong>Ap1</strong> 喜欢听英文歌/英文音频，能跟着哼唱</td><td><span class="check-box"></span></td><td><span class="check-box"></span></td><td><span class="check-box"></span></td></tr>
+    <tr><td><strong>Ap2</strong> 喜欢问"这个用英语怎么说"并反复念叨</td><td><span class="check-box"></span></td><td><span class="check-box"></span></td><td><span class="check-box"></span></td></tr>
+    <tr><td><strong>Kp1</strong> 背单词时必须走动、做动作或手里拿东西</td><td><span class="check-box"></span></td><td><span class="check-box"></span></td><td><span class="check-box"></span></td></tr>
+    <tr><td><strong>Kp2</strong> 喜欢用积木/卡片/实物学英语（而非App）</td><td><span class="check-box"></span></td><td><span class="check-box"></span></td><td><span class="check-box"></span></td></tr>
+    <tr><td><strong>Rp1</strong> 自己主动做笔记、写单词卡、列单词表</td><td><span class="check-box"></span></td><td><span class="check-box"></span></td><td><span class="check-box"></span></td></tr>
+    <tr><td><strong>Rp2</strong> 喜欢抄写句子/短文胜过口头练习</td><td><span class="check-box"></span></td><td><span class="check-box"></span></td><td><span class="check-box"></span></td></tr>
+  </table>
+
+  <h4>计分总表</h4>
+  <table style="width:100%; border-collapse:collapse; font-size:11.5px; margin:10px 0;">
+    <tr style="background:#faf8f6; border-bottom:1px solid #ddd;">
+      <th style="padding:6px 8px; text-align:left;">类别</th>
+      <th style="padding:6px 8px; text-align:center;">A 观察<br><span style="font-size:9px; color:#999;">(/6)</span></th>
+      <th style="padding:6px 8px; text-align:center;">B 自测<br><span style="font-size:9px; color:#999;">(/8)</span></th>
+      <th style="padding:6px 8px; text-align:center;">C 家长<br><span style="font-size:9px; color:#999;">(/4)</span></th>
+      <th style="padding:6px 8px; text-align:center;">总计<br><span style="font-size:9px; color:#999;">(/18)</span></th>
+      <th style="padding:6px 8px; text-align:center;">占比</th>
+    </tr>
+    <tr style="border-bottom:1px solid #eee;"><td style="padding:5px 8px;">V 视觉</td><td style="padding:5px 8px; text-align:center;">___</td><td style="padding:5px 8px; text-align:center;">___</td><td style="padding:5px 8px; text-align:center;">___</td><td style="padding:5px 8px; text-align:center;">___</td><td style="padding:5px 8px; text-align:center;">___%</td></tr>
+    <tr style="border-bottom:1px solid #eee;"><td style="padding:5px 8px;">A 听觉</td><td style="padding:5px 8px; text-align:center;">___</td><td style="padding:5px 8px; text-align:center;">___</td><td style="padding:5px 8px; text-align:center;">___</td><td style="padding:5px 8px; text-align:center;">___</td><td style="padding:5px 8px; text-align:center;">___%</td></tr>
+    <tr style="border-bottom:1px solid #eee;"><td style="padding:5px 8px;">K 动觉</td><td style="padding:5px 8px; text-align:center;">___</td><td style="padding:5px 8px; text-align:center;">___</td><td style="padding:5px 8px; text-align:center;">___</td><td style="padding:5px 8px; text-align:center;">___</td><td style="padding:5px 8px; text-align:center;">___%</td></tr>
+    <tr><td style="padding:5px 8px;">R 读写</td><td style="padding:5px 8px; text-align:center;">___</td><td style="padding:5px 8px; text-align:center;">___</td><td style="padding:5px 8px; text-align:center;">___</td><td style="padding:5px 8px; text-align:center;">___</td><td style="padding:5px 8px; text-align:center;">___%</td></tr>
+  </table>
+
+  <h4>结果判定</h4>
+  <table style="width:100%; border-collapse:collapse; font-size:11px;">
+    <tr style="background:#faf8f6; border-bottom:1px solid #ddd;">
+      <th style="padding:5px 8px; text-align:left;">总分区间</th>
+      <th style="padding:5px 8px; text-align:left;">判定</th>
+      <th style="padding:5px 8px; text-align:left;">说明</th>
+    </tr>
+    <tr style="border-bottom:1px solid #eee;"><td style="padding:4px 8px;">最高分 ≥ 12</td><td style="padding:4px 8px;"><strong>显著偏好</strong></td><td style="padding:4px 8px; color:#666;">该类型是主要学习通道，建议优先使用对应策略</td></tr>
+    <tr style="border-bottom:1px solid #eee;"><td style="padding:4px 8px;">最高分 8–11</td><td style="padding:4px 8px;"><strong>适度偏好</strong></td><td style="padding:4px 8px; color:#666;">有一定倾向，但仍需配合其他通道输入</td></tr>
+    <tr style="border-bottom:1px solid #eee;"><td style="padding:4px 8px;">最高分 ≤ 7</td><td style="padding:4px 8px;"><strong>无明显偏好</strong></td><td style="padding:4px 8px; color:#666;">均衡型学习者，多种方式交替效果最好</td></tr>
+    <tr><td style="padding:4px 8px;">两个分数接近且≥10</td><td style="padding:4px 8px;"><strong>混合型</strong></td><td style="padding:4px 8px; color:#666;">两条通道并用，策略叠加效果更好</td></tr>
+  </table>
+
+  <div class="footer">PenguinBear English · Learner Profile System · v1.0</div>
+</div>
+
+<!-- ============================================ -->
+<!-- PAGE 5: D - 学生画像模板（样表） -->
+<!-- ============================================ -->
+<div class="page">
+  <div class="brand">
+    <span class="brand-name">PenguinBear English</span>
+    <span class="brand-line"></span>
+    <span class="brand-tagline">Part D · Profile Template</span>
+  </div>
+
+  <h2>D — 学生画像模板</h2>
+  <p class="section-desc">填写后交给家长。既展示你的专业观察，也给出可执行的建议。</p>
+
+  <div class="profile-box">
+    <div class="row"><span class="label">学生姓名</span><span class="value" style="border-bottom:1px solid #ddd; min-width:200px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
+    <div class="row"><span class="label">评估日期</span><span class="value" style="border-bottom:1px solid #ddd; min-width:200px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
+    <div class="row"><span class="label">评估师</span><span class="value" style="border-bottom:1px solid #ddd; min-width:200px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
+
+    <hr class="divider">
+
+    <h4 style="margin:0 0 8px 0;">学习画像</h4>
+
+    <div class="score-box" style="margin:6px 0;">
+      <div class="score-item"><span class="type">V 视觉</span><span class="num">__</span><div class="bar"><div class="bar-fill bar-v" style="width:50%;"></div></div></div>
+      <div class="score-item"><span class="type">A 听觉</span><span class="num">__</span><div class="bar"><div class="bar-fill bar-a" style="width:30%;"></div></div></div>
+      <div class="score-item"><span class="type">K 动觉</span><span class="num">__</span><div class="bar"><div class="bar-fill bar-k" style="width:70%;"></div></div></div>
+      <div class="score-item"><span class="type">R 读写</span><span class="num">__</span><div class="bar"><div class="bar-fill bar-r" style="width:40%;"></div></div></div>
+    </div>
+
+    <p style="font-size:11px; color:#555; margin-bottom:6px;"><strong>倾向判定：</strong>______________________________</p>
+
+    <hr class="divider">
+
+    <h4 style="margin:0 0 6px 0;">针对性学习建议</h4>
+    <ul class="strategies">
+      <li>___________________________________</li>
+      <li>___________________________________</li>
+      <li>___________________________________</li>
+    </ul>
+
+    <hr class="divider">
+
+    <h4 style="margin:0 0 6px 0;">给家长的话</h4>
+    <p style="font-size:11px; color:#555; min-height:40px; border:1px dashed #ddd; padding:8px; border-radius:4px;">__________________________________________________________________<br>__________________________________________________________________<br>__________________________________________________________________</p>
+  </div>
+
+  <div class="note">
+    <strong>使用建议：</strong> 每个学生每学期做1次画像。第一次建档，3个月后复查，看学习策略调整后是否有变化。画像积累多了，你也能看到某些年龄段的规律。
+  </div>
+
+  <div class="footer">PenguinBear English · Learner Profile System · v1.0</div>
+</div>
+
+<!-- ============================================ -->
+<!-- PAGE 6: 策略卡 - 视觉型 -->
+<!-- ============================================ -->
+<div class="page">
+  <div class="brand">
+    <span class="brand-name">PenguinBear English</span>
+    <span class="brand-line"></span>
+    <span class="brand-tagline">Strategy Cards · Visual</span>
+  </div>
+
+  <h2>🟦 视觉型策略卡</h2>
+  <p class="section-desc">适用于V得分最高的学生（也是KET/Power Up阶段最常见的类型）</p>
+
+  <h4>词汇</h4>
+  <table class="strategy-table">
+    <tr><th>策略</th><th>课堂实操</th><th>家长配合</th></tr>
+    <tr>
+      <td>① 主题词网 Mind Map</td>
+      <td>每单元学完后，让学生画出主题词网。中间写主题词，向外放射分支，每支不同颜色</td>
+      <td>买一包彩色马克笔，在家学完一个主题画一张，贴在墙上</td>
+    </tr>
+    <tr>
+      <td>② 词图卡 Picture-Sentence Card</td>
+      <td>单词卡左边画图/贴图，右边写单词+例句。复习时只看图说词</td>
+      <td>准备空白卡片，复习时家长遮住图或遮住词，来回翻转</td>
+    </tr>
+    <tr>
+      <td>③ 颜色分类 Color-Code</td>
+      <td>名词=蓝色，动词=红色，形容词=绿色。每个新单词用对应颜色写进笔记本</td>
+      <td>复习时问"这个词是什么颜色？"帮她建立词汇分类的视觉记忆</td>
+    </tr>
+  </table>
+
+  <h4>语法</h4>
+  <table class="strategy-table">
+    <tr><th>策略</th><th>课堂实操</th><th>家长配合</th></tr>
+    <tr>
+      <td>④ 时间轴 Timeline</td>
+      <td>画一条横线标注过去-现在-未来，把时态例句放到对应位置。用箭头表示动作延续</td>
+      <td>做错时态题时，不直接纠正，让她自己在时间轴上找位置</td>
+    </tr>
+    <tr>
+      <td>⑤ 色标句子 Color-Coded Sentences</td>
+      <td>主语=蓝，谓语动词=红，时间状语=绿，其他=黑。她自己照着标一遍</td>
+      <td>拿她的英语作文，让她用三色笔自己标出来，自然就检查了语法</td>
+    </tr>
+  </table>
+
+  <h4>阅读</h4>
+  <table class="strategy-table">
+    <tr><th>策略</th><th>课堂实操</th><th>家长配合</th></tr>
+    <tr>
+      <td>⑥ 图片预读 Picture Walk</td>
+      <td>读文章前只看图片，让她预测故事内容。读完后再对照预测是否准确</td>
+      <td>新绘本/RAZ文章，先遮住字只看图，问她"你觉得讲了什么"</td>
+    </tr>
+    <tr>
+      <td>⑦ 荧光标记法 Highlighter Scan</td>
+      <td>三色荧光笔：黄=人物，粉=动作，蓝=时间地点。培养信息提取习惯</td>
+      <td>阅读题做错时，让她找出"题目里的词在文章哪个位置"，用荧光笔标出来</td>
+    </tr>
+  </table>
+
+  <h4>写作</h4>
+  <table class="strategy-table">
+    <tr><th>策略</th><th>课堂实操</th><th>家长配合</th></tr>
+    <tr>
+      <td>⑧ 作文结构图 Writing Map</td>
+      <td>写前先画结构：开头→中间三件事→结尾。每个框写2-3个关键词再展开</td>
+      <td>写作文前不催"快写"，让她先花3分钟画结构图</td>
+    </tr>
+  </table>
+
+  <h4>听力</h4>
+  <table class="strategy-table">
+    <tr><th>策略</th><th>课堂实操</th><th>家长配合</th></tr>
+    <tr>
+      <td>⑨ 听力可视化 Listen &amp; Draw</td>
+      <td>听一段描述性内容，让学生边听边画出听到的关键信息</td>
+      <td>听英文故事时，让她把听到的关键词写下来/画下来</td>
+    </tr>
+  </table>
+
+  <div class="tip"><strong>一句话总结：</strong> 视觉型孩子学英语 = 把声音和意义翻译成图像和颜色。她"看到"了，就学会了。</div>
+
+  <div class="footer">PenguinBear English · Learner Profile System · v1.0</div>
+</div>
+
+<!-- ============================================ -->
+<!-- PAGE 7: 策略卡 - 听觉型 -->
+<!-- ============================================ -->
+<div class="page">
+  <div class="brand">
+    <span class="brand-name">PenguinBear English</span>
+    <span class="brand-line"></span>
+    <span class="brand-tagline">Strategy Cards · Auditory</span>
+  </div>
+
+  <h2>🟪 听觉型策略卡</h2>
+  <p class="section-desc">适用于A得分最高的学生（适合唱歌学英语的类型）</p>
+
+  <h4>词汇</h4>
+  <table class="strategy-table">
+    <tr><th>策略</th><th>课堂实操</th><th>家长配合</th></tr>
+    <tr>
+      <td>① 节奏拍单词 Rhythm Chant</td>
+      <td>把单词按音节拍成节奏，边说边拍桌子或拍手。如"ap-ple"拍两下，"ba-na-na"拍三下</td>
+      <td>背单词时让她打着拍子背，录下来回听，自己检查</td>
+    </tr>
+    <tr>
+      <td>② 听写+自录 Self-Recording</td>
+      <td>读新单词后让学生跟读并用手机录下来。隔天回放录音复习</td>
+      <td>每周录一段"本周新词"，周末吃饭时全家人一起听一遍</td>
+    </tr>
+    <tr>
+      <td>③ 情景小对话 Mini Dialogues</td>
+      <td>不是孤立法，而是把新词放进简短对话里。让学生听对话猜词义</td>
+      <td>在车上用对话形式问单词："Guess what I put in my bag? A ___!"</td>
+    </tr>
+  </table>
+
+  <h4>语法</h4>
+  <table class="strategy-table">
+    <tr><th>策略</th><th>课堂实操</th><th>家长配合</th></tr>
+    <tr>
+      <td>④ 歌谣语法 Grammar Chant</td>
+      <td>把语法规则编成歌谣或顺口溜。如"I am, you are, he/she/it is, we are, they are"用固定旋律唱</td>
+      <td>在家里定一个"本周语法歌"，每天哼一遍</td>
+    </tr>
+    <tr>
+      <td>⑤ 纠音问答 Error Echo</td>
+      <td>学生说错时，不说"错了"，而是用正确语调重复一遍，让她自己听出不同</td>
+      <td>孩子说"Yesterday I go to park"，你正常说"Oh, you went to the park?"——她听久了自然会被纠过来</td>
+    </tr>
+  </table>
+
+  <h4>阅读</h4>
+  <table class="strategy-table">
+    <tr><th>策略</th><th>课堂实操</th><th>家长配合</th></tr>
+    <tr>
+      <td>⑥ 有声跟读 Audio Shadowing</td>
+      <td>放一句音频，她重复一句。关注语调、停顿、连读，不求先懂意思</td>
+      <td>睡前播放绘本音频，让她跟着读，不纠正，只享受声音</td>
+    </tr>
+  </table>
+
+  <h4>写作</h4>
+  <table class="strategy-table">
+    <tr><th>策略</th><th>课堂实操</th><th>家长配合</th></tr>
+    <tr>
+      <td>⑦ 先说后写 Speak-Before-Write</td>
+      <td>写之前先让她口述一遍作文内容，用录音笔录下来。听自己的录音再写</td>
+      <td>写作文前让她先说一遍，你听完说"好，现在写下来"</td>
+    </tr>
+  </table>
+
+  <div class="tip"><strong>一句话总结：</strong> 听觉型孩子学英语 = 先让耳朵熟悉，再让手写下来。声音是最短的学习路径。</div>
+
+  <div class="footer">PenguinBear English · Learner Profile System · v1.0</div>
+</div>
+
+<!-- ============================================ -->
+<!-- PAGE 8: 策略卡 - 动觉型 + 读写型 -->
+<!-- ============================================ -->
+<div class="page">
+  <div class="brand">
+    <span class="brand-name">PenguinBear English</span>
+    <span class="brand-line"></span>
+    <span class="brand-tagline">Strategy Cards · Kinesthetic &amp; R/W</span>
+  </div>
+
+  <h2>🟩 动觉型策略卡</h2>
+  <p class="section-desc">适用于K得分最高的学生（坐不住≠不专心，她的身体在学习）</p>
+
+  <table class="strategy-table">
+    <tr><th>重点</th><th>策略</th><th>课堂实操</th><th>家长配合</th></tr>
+    <tr>
+      <td>词汇</td>
+      <td>① 肢体词汇 TPR Vocabulary</td>
+      <td>每个动词配上动作（jump→跳，eat→做吃的动作，write→比划写），边说边做</td>
+      <td>复习时你做动作她说词，或者她说词你做动作</td>
+    </tr>
+    <tr>
+      <td>词汇</td>
+      <td>② 单词卡大作战 Card Scavenger Hunt</td>
+      <td>把单词卡散落一地或贴在教室各处，老师说词，学生跑着找到</td>
+      <td>在家把卡片贴在门上/柜子上，每天经过时读一个</td>
+    </tr>
+    <tr>
+      <td>语法</td>
+      <td>③ 语法角色扮演 Grammar Role-play</td>
+      <td>学现在进行时时，一个学生做动作，另一个说"He is jumping"</td>
+      <td>在家玩"你演我猜"：你做动作，她造句，反过来也行</td>
+    </tr>
+    <tr>
+      <td>阅读</td>
+      <td>④ 手指指读 Finger Reading</td>
+      <td>读文章时必须用手指或笔尖逐词指读，身体参与会减少走神</td>
+      <td>读RAZ时让她拿一支棒棒糖（或任何小物件）指着读</td>
+    </tr>
+    <tr>
+      <td>写作</td>
+      <td>⑤ 走动式默写 Walk &amp; Write</td>
+      <td>把要写的句子贴在远处，走过去看，走回来写。一次只记一个短语</td>
+      <td>在家把句子贴在白板上，她在客厅和书房间来回走着背写</td>
+    </tr>
+  </table>
+  <div class="tip"><strong>一句话总结：</strong> 动觉型孩子学英语 = 身体先用一遍，大脑自然跟上。不动就学不了，动了反而专注。</div>
+
+  <hr style="border:none; border-top:2px solid #e8e4e0; margin:14px 0;">
+
+  <h2 style="margin-top:10px;">🟧 读写型策略卡</h2>
+  <p class="section-desc">适用于R得分最高的学生（安静的独立学习者）</p>
+
+  <table class="strategy-table">
+    <tr><th>重点</th><th>策略</th><th>课堂实操</th><th>家长配合</th></tr>
+    <tr>
+      <td>词汇</td>
+      <td>① 词汇笔记本 Vocabulary Log</td>
+      <td>每人一本专项词汇本：新词→中文释义→英文例句→自创句子。结构固定，养成习惯</td>
+      <td>准备一本漂亮的笔记本，让她有"专属感"</td>
+    </tr>
+    <tr>
+      <td>词汇</td>
+      <td>② 例句模仿 Sentence Starter Bank</td>
+      <td>看到好句子就抄进"句子银行"，分类（问句/感叹句/比较句）</td>
+      <td>每周选一句当"本周金句"，贴冰箱上</td>
+    </tr>
+    <tr>
+      <td>语法</td>
+      <td>③ 语法表格 Grammar Grid</td>
+      <td>自制语法对比表格：一般现在时 vs 现在进行时，一列一列填</td>
+      <td>打印空白表格，让她对照课本填，填完就是复习完</td>
+    </tr>
+    <tr>
+      <td>阅读</td>
+      <td>④ 阅读笔记卡 Reading Response Card</td>
+      <td>读完一篇文章写3句话：1个新词+1个喜欢的句子+1个自己的感受</td>
+      <td>读完RAZ问她"今天最想记下来的是哪个句子"</td>
+    </tr>
+    <tr>
+      <td>写作</td>
+      <td>⑤ 范文改写 Rewrite from Model</td>
+      <td>给一篇范文，让她替换关键词/换人称/换时态写一篇类似的</td>
+      <td>不必每次都写新作文，改写范文的效率更高</td>
+    </tr>
+  </table>
+  <div class="tip"><strong>一句话总结：</strong> 读写型孩子学英语 = 文字是她最舒适的学习介质。给她笔和纸，她就能自己构建理解。</div>
+
+  <div class="footer">PenguinBear English · Learner Profile System · v1.0</div>
+</div>
+
+<!-- ============================================ -->
+<!-- PAGE 9: 工作流程速查卡 -->
+<!-- ============================================ -->
+<div class="page">
+  <div class="brand">
+    <span class="brand-name">PenguinBear English</span>
+    <span class="brand-line"></span>
+    <span class="brand-tagline">Quick Reference</span>
+  </div>
+
+  <h2>工作流程速查</h2>
+  <p class="section-desc">从接触到完成画像的标准流程，每次约需10分钟。</p>
+
+  <table style="width:100%; border-collapse:collapse; font-size:11px; margin-bottom:12px;">
+    <tr style="background:#faf8f6; border-bottom:1px solid #ddd;">
+      <th style="padding:5px 6px; text-align:center; width:30px;">#</th>
+      <th style="padding:5px 6px; text-align:left;">环节</th>
+      <th style="padding:5px 6px; text-align:left;">操作</th>
+      <th style="padding:5px 6px; text-align:left; width:50px;">耗时</th>
+    </tr>
+    <tr style="border-bottom:1px solid #eee;">
+      <td style="padding:4px 6px; text-align:center; font-weight:600;">1</td>
+      <td style="padding:4px 6px;"><strong>初次接触</strong></td>
+      <td style="padding:4px 6px; color:#555;">上课1-2次后，凭印象填写教师观察清单（Part A）</td>
+      <td style="padding:4px 6px; color:#888;">3分钟</td>
+    </tr>
+    <tr style="border-bottom:1px solid #eee;">
+      <td style="padding:4px 6px; text-align:center; font-weight:600;">2</td>
+      <td style="padding:4px 6px;"><strong>学生自测</strong></td>
+      <td style="padding:4px 6px; color:#555;">课前/课间发Part B问卷，让孩子自己勾选</td>
+      <td style="padding:4px 6px; color:#888;">3分钟</td>
+    </tr>
+    <tr style="border-bottom:1px solid #eee;">
+      <td style="padding:4px 6px; text-align:center; font-weight:600;">3</td>
+      <td style="padding:4px 6px;"><strong>家长问卷</strong></td>
+      <td style="padding:4px 6px; color:#555;">首次课后发给家长，下次课带回</td>
+      <td style="padding:4px 6px; color:#888;">家长2分钟</td>
+    </tr>
+    <tr style="border-bottom:1px solid #eee;">
+      <td style="padding:4px 6px; text-align:center; font-weight:600;">4</td>
+      <td style="padding:4px 6px;"><strong>汇总计分</strong></td>
+      <td style="padding:4px 6px; color:#555;">把三张表的分数填入计分总表，看最高分</td>
+      <td style="padding:4px 6px; color:#888;">2分钟</td>
+    </tr>
+    <tr style="border-bottom:1px solid #eee;">
+      <td style="padding:4px 6px; text-align:center; font-weight:600;">5</td>
+      <td style="padding:4px 6px;"><strong>填写画像</strong></td>
+      <td style="padding:4px 6px; color:#555;">用Part D画像模板，填入分数、判定和策略建议</td>
+      <td style="padding:4px 6px; color:#888;">3分钟</td>
+    </tr>
+    <tr>
+      <td style="padding:4px 6px; text-align:center; font-weight:600;">6</td>
+      <td style="padding:4px 6px;"><strong>交付家长</strong></td>
+      <td style="padding:4px 6px; color:#555;">把画像模板交给家长，简单说明1分钟。同步调整后续教学策略</td>
+      <td style="padding:4px 6px; color:#888;">1分钟</td>
+    </tr>
+  </table>
+
+  <h3 style="margin-top:14px; font-size:13px;">给家长的解释话术（供参考）</h3>
+
+  <div style="background:#f8f6f4; border-radius:4px; padding:8px 12px; margin-bottom:10px;">
+    <p style="font-size:11px; color:#444; font-style:italic; margin:0;">
+      "XX妈妈，我观察了这几节课，给XX做了一个学习风格的小评估。发现她偏向XXXX型学习者——简单说就是她通过XXXX学得最快。不需要改变她，只是在教学方法上做一些微调，效率会高很多。这是她的学习画像和建议，您看看，有什么问题随时问我。"
+    </p>
+  </div>
+
+  <h3 style="margin-top:12px; font-size:13px;">进阶：画像数据的长期价值</h3>
+  <p style="font-size:10.5px; color:#555;">当你积累了10份、20份学生画像后，你会发现一些规律——比如Power Up阶段的孩子多少都有视觉偏好，而KET备考阶段读写型比例上升。这些数据可以帮你：</p>
+  <ul style="font-size:10px; color:#555; padding-left:16px; margin-bottom:4px;">
+    <li>设计更符合大多数学生的课堂活动</li>
+    <li>在招生时说"我有一套专业的学情分析系统"——这是差异化卖点</li>
+    <li>每学期给家长一份"成长对比"——画像变了，说明孩子发展变化了</li>
+  </ul>
+
+  <div class="footer">PenguinBear English · Learner Profile System · v1.0</div>
+</div>
+
+</body>
+</html>
